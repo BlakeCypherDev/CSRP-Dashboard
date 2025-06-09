@@ -1,36 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>City Skyline RP Dashboard</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #1e1e2f;
-      color: white;
-      margin: 0;
-      padding: 20px;
-    }
-    .dashboard {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-    .card {
-      background: #2c2f4a;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
-    .card h2 {
-      margin: 0 0 10px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>City Skyline RP Dashboard</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #1e1e2f; color: white; margin: 0; padding: 20px; }
+  .dashboard { max-width: 600px; margin: auto; }
+  .card { background: #2c2f4a; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+  input, button { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: none; }
+  button { background: #4caf50; color: white; cursor: pointer; }
+  button:hover { background: #45a049; }
+</style>
 </head>
 <body>
+
+<div id="loginDiv">
+  <h2>Admin Login</h2>
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <p id="loginError" style="color: red;"></p>
+</div>
+
+<div id="dashboardDiv" style="display:none;">
+  <button onclick="logout()">Logout</button>
   <h1>🌆 City Skyline RP Dashboard</h1>
   <div class="dashboard">
     <div class="card">
@@ -42,40 +36,71 @@
       <p id="discordCount">Loading...</p>
     </div>
   </div>
+</div>
 
-  <script>
-    async function fetchPlayers() {
-      try {
-        const res = await fetch("http://31.25.235.112:3002/players.json");
-        const data = await res.json();
-        document.getElementById("playerCount").innerText = data.length + " players online";
-      } catch {
-        document.getElementById("playerCount").innerText = "Server offline";
-      }
-    }
-
-    fetchPlayers();
-    setInterval(fetchPlayers, 10000);
-  </script>
-
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
 
 <script>
+  // Replace this with your Firebase config from Step 1!
   const firebaseConfig = {
-    apiKey: "AIzaSyEXAMPLE",
-    authDomain: "cityrp.firebaseapp.com",
-    projectId: "cityrp",
-    storageBucket: "cityrp.appspot.com",
-    messagingSenderId: "123456",
-    appId: "1:123456:web:abc"
+    apiKey: "AIzaSyCZ5RVUaJB85BBRo3JN9pSDiF5bSVLBnQQ",
+    authDomain: "city-skyline-rp.firebaseapp.com",
+    projectId: "city-skyline-rp",
+    storageBucket: "city-skyline-rp.firebasestorage.app",
+    messagingSenderId: "923498747686",
+    appId: "1:923498747686:web:028270a251df82eb6513e7"
   };
 
   const app = firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // Real-time updates from Firestore
+  function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    auth.signInWithEmailAndPassword(email, password)
+      .then(() => {
+        document.getElementById('loginDiv').style.display = 'none';
+        document.getElementById('dashboardDiv').style.display = 'block';
+        document.getElementById('loginError').innerText = '';
+        fetchPlayers();
+      })
+      .catch(err => {
+        document.getElementById('loginError').innerText = err.message;
+      });
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      document.getElementById('loginDiv').style.display = 'block';
+      document.getElementById('dashboardDiv').style.display = 'none';
+    });
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('loginDiv').style.display = 'none';
+      document.getElementById('dashboardDiv').style.display = 'block';
+      fetchPlayers();
+    } else {
+      document.getElementById('loginDiv').style.display = 'block';
+      document.getElementById('dashboardDiv').style.display = 'none';
+    }
+  });
+
+  async function fetchPlayers() {
+    try {
+      const res = await fetch("http://31.25.235.112:3002/players.json");
+      const data = await res.json();
+      document.getElementById("playerCount").innerText = data.length + " players online";
+    } catch {
+      document.getElementById("playerCount").innerText = "Server offline";
+    }
+  }
+
+  // Real-time Discord count from Firestore
   db.doc("dashboard/stats").onSnapshot(doc => {
     if (doc.exists) {
       const data = doc.data();
@@ -83,5 +108,6 @@
     }
   });
 </script>
+
 </body>
 </html>
