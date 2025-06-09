@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>City Skyline RP Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #1e1e2f;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    .dashboard {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .card {
+      background: #2c2f4a;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌆 City Skyline RP Dashboard</h1>
+  <div class="dashboard">
+    <div class="card">
+      <h2>🧍 Players Online</h2>
+      <p id="playerCount">Loading...</p>
+    </div>
+    <div class="card">
+      <h2>💬 Discord Members Online</h2>
+      <p id="discordCount">Loading...</p>
+    </div>
+  </div>
+
+  <script>
+    async function fetchPlayers() {
+      try {
+        const res = await fetch("http://your-server-ip:30120/players.json");
+        const data = await res.json();
+        document.getElementById("playerCount").innerText = data.length + " players online";
+      } catch {
+        document.getElementById("playerCount").innerText = "Server offline";
+      }
+    }
+
+    fetchPlayers();
+    setInterval(fetchPlayers, 10000);
+  </script>
+</body>
+</html>
