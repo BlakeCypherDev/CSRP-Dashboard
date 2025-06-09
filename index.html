@@ -72,12 +72,7 @@
       });
   }
 
-  function logout() {
-    auth.signOut().then(() => {
-      document.getElementById('loginDiv').style.display = 'block';
-      document.getElementById('dashboardDiv').style.display = 'none';
-    });
-  }
+auth.signOut(); // Force logout for testing
 
   auth.onAuthStateChanged(user => {
     if (user) {
